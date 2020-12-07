@@ -1,0 +1,31 @@
+function(download_file URL FILENAME HASH_TYPE HASH)
+  if(NOT EXISTS ${FILENAME})
+    file(DOWNLOAD ${URL} ${FILENAME}
+      EXPECTED_HASH ${HASH_TYPE}=${HASH}
+      TLS_VERIFY ON
+      SHOW_PROGRESS)
+  endif()
+endfunction()
+
+set(TOOLCHAIN_URL "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.2-2020.11/binrel/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu.tar.xz?revision=972019b5-912f-4ae6-864a-f61f570e2e7e&la=en&hash=B8618949E6095C87E4C9FFA1648CAA67D4997D88")
+
+set(DOWNLOAD_PATH ${CMAKE_BINARY_DIR}/download)
+set(TOOLCHAIN_PATH ${CMAKE_BINARY_DIR}/external/toolchain)
+
+download_file(${TOOLCHAIN_URL} ${DOWNLOAD_PATH}/gcc-arm.tar.xz SHA256 fe7f72330216612de44891ebe5e228eed7c0c051ac090c395b2b33115c6f5408)
+
+file(ARCHIVE_EXTRACT INPUT ${DOWNLOAD_PATH}/gcc-arm.tar.xz DESTINATION ${TOOLCHAIN_PATH} VERBOSE)
+
+set(TOOLCHAIN_ROOT ${TOOLCHAIN_PATH}/gcc-arm-10.2-2020.11-x86_64-aarch64-none-linux-gnu)
+
+set(CMAKE_SYSTEM_NAME)
+
+set(CMAKE_C_COMPILER ${TOOLCHAIN_ROOT}/bin/aarch64-none-linux-gnu-gcc)
+set(CMAKE_CXX_COMPILER ${TOOLCHAIN_ROOT}/bin/aarch64-none-linux-gnu-g++)
+
+set(CMAKE_FIND_ROOT_PATH ${TOOLCHAIN_ROOT} ${TOOLCHAIN_ROOT}/aarch64-none-linux-gnu ${TOOLCHAIN_ROOT}/aarch64-none-linux-gnu/libc)
+
+SET(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+
+SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
